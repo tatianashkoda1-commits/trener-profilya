@@ -164,8 +164,8 @@ const CHECK={
   it.push([words?'y':'n','Кроме имени есть дело: «Имя | что делаешь · город»']);
   const noN=!S.niche.trim();
   it.push([noN?'w':nich?'y':'n',noN?'Шаг 0 пустой — не с чем сверить. Вернись на шаг назад и напиши, как тебя ищут':'Есть слово, которое вбивают в поиск («'+esc(S.niche)+'»)']);
-  if(len(n)>30)it.push(['n','Длиннее 30 знаков ('+len(n)+') — Instagram столько не пустит. Сокращай']);
-  const ok=n&&words&&(nich||noN)&&len(n)<=30;
+  if(len(n)>64)it.push(['n','Длиннее 64 знаков ('+len(n)+') — Instagram столько не пустит. Сокращай']);
+  const ok=n&&words&&(nich||noN)&&len(n)<=64;
   return{ok,items:it,say:!n?'Пусто. Instagram тоже не в курсе, кто ты. Вы с ним на равных.':!words?'Рыжих много. Маш тоже. Ищут не Машу, ищут того, кто решит задачу. Допиши через черту, что делаешь.':noN?'Дело вижу. А с поиском сверю, когда вернёшься на шаг 0 и напишешь, как тебя ищут.':!nich?'Дело вижу: «'+esc(n)+'». Но в шаге 0 стоит «'+esc(S.niche)+'» — а этого слова в «Имени» нет. Так как тебя ищут? Что вбивают в поиск, то и ставь в «Имя».':'Вот. Теперь тебя находят не случайно, а по делу. Как приличного человека.'}},
  ava(){const it=[];it.push([S.ava?'y':'n','Фото загружено']);it.push([S.avaOk===true?'y':S.avaOk===false?'n':'w','В крошечном кружке видно лицо или знак']);
   const ok=!!S.ava&&S.avaOk===true;
@@ -259,7 +259,7 @@ function render(){
  }
  else if(st.id==='name'){
   h=head(st)+`<div class="field"><label>Ник</label><input type="text" id="f-nick" value="${esc(S.nick)}" placeholder="anna.torty"></div>
-  <div class="field"><label>Поле «Имя» <span class="cnt ${len(S.name)>30?'over':''}" id="c-name">${len(S.name)}/30</span></label><input type="text" id="f-name" value="${esc(S.name)}" placeholder="Анна | торты на заказ · Казань"><div class="hint">Формула: Имя | что делаешь · город</div></div>`+verdict('name');
+  <div class="field"><label>Поле «Имя» <span class="cnt ${len(S.name)>64?'over':''}" id="c-name">${len(S.name)}/64</span></label><input type="text" id="f-name" value="${esc(S.name)}" placeholder="Анна | торты на заказ · Казань"><div class="hint">Формула: Имя | что делаешь · город</div></div>`+verdict('name');
  }
  else if(st.id==='ava'){
   h=head(st)+`<div class="field"><label class="file"><input type="file" accept="image/*" id="f-ava">📷 ${S.ava?'Заменить фото':'Загрузить аватар'}</label><div class="hint">Фото никуда не отправляется, остаётся у тебя.</div></div>
@@ -310,7 +310,7 @@ function firstName(){const w=(S.name||'').trim().split(/[\s|·•,.—–-]+/)[0
 function HINTS(k){const N=(S.niche||'').trim()||'торты на заказ',C=(S.city||'').trim(),F=firstName();
  const H={
   niche:{p:'Так, как это набирают в поиске. Нажми на пример, если похоже:',f:'f-niche',mode:'set',c:['торты на заказ','мыло ручной работы','пицца дома','меню для мам','выпечка без глютена','курсы кондитера']},
-  name:{p:'Формула: Имя | что делаешь · город. Город — если работаешь офлайн. Влезть надо в 30 знаков. Нажми, чтобы вставить:',f:'f-name',mode:'set',c:(()=>{const v=[F+' | '+N,F+' | '+N+(C?' · '+C:' · онлайн'),cap(N)+' | '+F,cap(N)+(C?' · '+C:'')].filter((x,i,a)=>a.indexOf(x)===i);const f=v.filter(x=>len(x)<=30);return f.length?f:[cap(N).slice(0,30)]})()},
+  name:{p:'Формула: Имя | что делаешь · город. Город — если работаешь офлайн. Чем короче, тем лучше читается. Нажми, чтобы вставить:',f:'f-name',mode:'set',c:(()=>{const v=[F+' | '+N,F+' | '+N+(C?' · '+C:' · онлайн'),cap(N)+' | '+F,cap(N)+(C?' · '+C:'')].filter((x,i,a)=>a.indexOf(x)===i);const f=v.filter(x=>len(x)<=40);return f.length?f:v.slice(0,2)})()},
   ava:{p:'Лицо занимает две трети кружка, светлый фон, смотришь в камеру, видно глаза. Или один знак крупно — если ты бренд, а не человек. Никаких общих планов, тортов на столе и котов в темноте.'},
   bio:{p:'Четыре строки, у каждой одна работа. Нажми — вставлю заготовку под твою нишу, допиши вместо «…»:',f:'f-bio',mode:'set',c:[cap(N)+'\nДля тех, кто …\n… · … · …\n↓ Меню и цены',cap(N)+(C?' · '+C:'')+'\nПомогаю …, даже если …\nУже … человек …\n↓ Записаться'],p2:'Последняя строка — одно действие:',c2:['↓ Меню и цены','↓ Записаться','↓ Бесплатный урок','↓ Как заказать'],mode2:'line'},
   links:{p:'Подпись — это глагол или то, что человек получит. Нажми — вставлю в первую пустую подпись, а адрес впиши сам:',f:'links',mode:'slot',c:['Меню и цены','Записаться','Бесплатный урок','Отзывы','Как заказать','Telegram-канал']},
@@ -358,7 +358,7 @@ function bind(){
  const st=STEPS[step],k=st.id;
  const inp=(id,key,ck,cnt,max)=>{const e=$(id);if(e)e.oninput=()=>{S[key]=e.value;if(cnt){const c=$(cnt);c.textContent=len(e.value)+'/'+max;c.classList.toggle('over',len(e.value)>max)}refresh(ck)}};
  if(k==='niche'){inp('#f-niche','niche');inp('#f-city','city')}
- inp('#f-nick','nick','name');inp('#f-name','name','name','#c-name',30);inp('#f-bio','bio','bio','#c-bio',150);
+ inp('#f-nick','nick','name');inp('#f-name','name','name','#c-name',64);inp('#f-bio','bio','bio','#c-bio',150);
  document.querySelectorAll('[data-l]').forEach(e=>e.oninput=()=>{S.links[+e.dataset.l][e.dataset.f]=e.value;refresh('links')});
  document.querySelectorAll('[data-p]').forEach(e=>e.oninput=()=>{S.pins[+e.dataset.p]=e.value;refresh('pins')});
  document.querySelectorAll('[data-h]').forEach(e=>e.oninput=()=>{S.hl[+e.dataset.h]=e.value;refresh('hl')});
